@@ -8,6 +8,9 @@ using System.Web;
 using PCAxis.Menu;
 using System.Xml;
 using PCAxis.Paxiom.Extensions;
+using PcAxis.Search;
+using PCAxis.Web.Core.Enums;
+using PCAxis.Paxiom;
 
 namespace PCAxis.Search
 {
@@ -111,11 +114,59 @@ namespace PCAxis.Search
         /// <param name="language">language</param>
         public bool CreateIndex(string database, string language)
         {
-            Indexer indexer = new Indexer(GetIndexDirectoryPath(database, language), _menuMethod, database, language);
+            //Indexer indexer = new Indexer(GetIndexDirectoryPath(database, language), _menuMethod, database, language);
+            IPxSearchProvider searchProvider = new LuceneProvider();
+            IIndexer indexer = searchProvider.GetIndexer(GetIndexDirectoryPath(database, language), _menuMethod, database, language);
+            indexer.Create(true);
 
-            if (!indexer.CreateIndex()) {
-                return false;
+            try
+            {
+                ItemSelection node = null;
+
+                // Get database
+                PCAxis.Menu.Item itm;
+                PCAxis.Menu.PxMenuBase db = _menuMethod(database, node, language, out itm);
+                if (db == null)
+                {
+                    _logger.Error("Failed to access database '" + database + "'. Creation of search index aborted.");
+                    indexer.Rollback(); 
+                    _logger.Error("Rollback of '" + database + "' done");
+                    return false;
+                }
+
+                PCAxis.Web.Core.Enums.DatabaseType dbType;
+                if (db is PCAxis.Menu.Implementations.XmlMenu)
+                {
+                    dbType = DatabaseType.PX;
+                }
+                else
+                {
+                    dbType = DatabaseType.CNMM;
+                }
+
+                if (db.RootItem != null)
+                {
+                    foreach (var item in db.RootItem.SubItems)
+                    {
+                        if (item is PCAxis.Menu.PxMenuItem)
+                        {
+                            TraverseDatabase(dbType, item as PxMenuItem, indexer, "/" + item.ID.Selection, database, language);
+                        }
+                        else if (item is PCAxis.Menu.TableLink)
+                        {
+                            IndexTable(dbType, (TableLink)item, "/" + item.ID.Menu, indexer, database, language);
+                        }
+                    }
+                }
+
+                indexer.Dispose();
             }
+            catch (Exception e)
+            {
+                _logger.Error(e);
+                throw;
+            }
+        
 
             RemoveSearcher(database, language);
             return true;
@@ -128,10 +179,73 @@ namespace PCAxis.Search
         /// <param name="language">language</param>
         public bool UpdateIndex(string database, string language, List<TableUpdate> tableList)
         {
-            Indexer indexer = new Indexer(GetIndexDirectoryPath(database, language), _menuMethod, database, language);
+            IPxSearchProvider searchProvider = new LuceneProvider();
+            IIndexer indexer = searchProvider.GetIndexer(GetIndexDirectoryPath(database, language), _menuMethod, database, language);
+            indexer.Create(false);
 
-            if (!indexer.UpdateIndex(tableList)) {
-                return false;
+            ItemSelection node = null;
+            PCAxis.Menu.Item currentTable;
+            string[] pathParts;
+            string title;
+            string menu, selection;
+            DateTime published = DateTime.MinValue;
+            bool doUpdate;
+
+            try
+            {
+                foreach (TableUpdate table in tableList)
+                {
+                    doUpdate = false;
+                    PXModel model = PxModelManager.Current.GetModel(DatabaseType.CNMM, database, language, table.Id);
+
+                    // Get default value for title
+                    title = model.Meta.Title;
+
+                    // Get table title from _menuMethod
+                    // table.Path is supposed to have the following format: path/path/path
+                    // Example: BE/BE0101/BE0101A
+                    pathParts = table.Path.Split(new char[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
+
+                    if (pathParts.Length > 1)
+                    {
+                        menu = pathParts[pathParts.Length - 1];
+                        selection = table.Id;
+
+                        node = new ItemSelection(menu, selection);
+                        PCAxis.Menu.PxMenuBase db = _menuMethod(database, node, language, out currentTable);
+
+                        if (currentTable != null)
+                        {
+                            if (currentTable is TableLink)
+                            {
+                                doUpdate = true;
+                                // Get table title from the menu method
+                                if (!string.IsNullOrEmpty(currentTable.Text))
+                                {
+                                    title = currentTable.Text;
+                                }
+                                if (((TableLink)currentTable).Published != null)
+                                {
+                                    published = (DateTime)((TableLink)currentTable).Published;
+                                }
+                            }
+                        }
+                    }
+
+                    if (doUpdate)
+                    {
+                        indexer.UpdatePaxiomDocument(database, table.Id, table.Path, table.Id, title, published, model.Meta);
+                        _logger.Info("Search index " + database + " - " + language + " updated table " + table.Id);
+                    }
+                }
+
+                indexer.Dispose();
+            }
+            catch (Exception e)
+            {
+                indexer.Rollback();
+                _logger.Error(e);
+                throw;
             }
 
             RemoveSearcher(database, language);
@@ -148,15 +262,18 @@ namespace PCAxis.Search
         /// <returns></returns>
         public List<SearchResultItem> Search(string database, string language, string text, out SearchStatusType status, string filter = "", int resultListLength = 250)
         {
-            Searcher searcher = GetSearcher(database, language);
-            
-            if (searcher == null)
+            //Searcher searcher = GetSearcher(database, language);
+            IPxSearchProvider searchProvider = new LuceneProvider();
+            string dir = GetIndexDirectoryPath(database, language);
+
+            if (!Directory.Exists(dir))
             {
-                // Return empty list
                 status = SearchStatusType.NotIndexed;
                 return new List<SearchResultItem>();
             }
 
+            ISearcher searcher = searchProvider.GetSearcher(dir);
+            
             status = SearchStatusType.Successful;
             return searcher.Search(text, filter, resultListLength);
         }
@@ -180,6 +297,119 @@ namespace PCAxis.Search
         #endregion
 
         #region "Private methods"
+
+        /// <summary>
+        /// Recursively traverse the database to add all tables as Document objects into the index
+        /// </summary>
+        /// <param name="itm">Current node in database to add Document objects for</param>
+        /// <param name="writer">IndexWriter object</param>
+        /// <param name="path">Path within the database for this node</param>
+        private void TraverseDatabase(PCAxis.Web.Core.Enums.DatabaseType dbType, PxMenuItem itm, IIndexer indexer, string path, string database, string language)
+        {
+            PCAxis.Menu.Item newItem;
+            PCAxis.Menu.PxMenuBase db = _menuMethod(database, itm.ID, language, out newItem);
+            PxMenuItem m = (PxMenuItem)newItem;
+
+            if (m == null)
+            {
+                return;
+            }
+
+            foreach (var item in m.SubItems)
+            {
+                if (item is PxMenuItem)
+                {
+                    TraverseDatabase(dbType, item as PxMenuItem, indexer, path + "/" + item.ID.Selection, database, language);
+                }
+                else if (item is TableLink)
+                {
+                    IndexTable(dbType, (TableLink)item, path, indexer, database, language);
+                }
+            }
+        }
+
+
+        /// <summary>
+        /// Add table to search index
+        /// </summary>
+        /// <param name="dbType">Type of database</param>
+        /// <param name="item">TableLink object representing the table</param>
+        /// <param name="path">Path to table within database</param>
+        /// <param name="writer">IndexWriter object</param>
+        private void IndexTable(PCAxis.Web.Core.Enums.DatabaseType dbType, TableLink item, string path, IIndexer indexer, string database, string language)
+        {
+            item.ID.Selection = CleanTableId(item.ID);
+
+            PXModel model = PxModelManager.Current.GetModel(dbType, database, language, item.ID);
+
+            if (model != null)
+            {
+                string id;
+                string tablePath;
+                string table = "";
+                string title = "";
+                DateTime published = DateTime.MinValue;
+
+                if (dbType == DatabaseType.PX)
+                {
+                    char[] sep = { '\\' };
+                    string[] parts = item.ID.Selection.Split(sep, StringSplitOptions.RemoveEmptyEntries);
+                    StringBuilder pxPath = new StringBuilder();
+
+                    // PX database
+                    id = item.ID.Selection;
+
+                    for (int i = 0; i < parts.Length - 1; i++)
+                    {
+                        if (i > 0)
+                        {
+                            pxPath.Append("/");
+                        }
+                        pxPath.Append(parts[i]);
+                    }
+                    tablePath = pxPath.ToString();
+                    table = parts.Last();
+                    title = item.Text;
+                    if (((TableLink)item).Published != null)
+                    {
+                        published = (DateTime)((TableLink)item).Published;
+                    }
+                }
+                else
+                {
+                    // CNMM database
+                    id = item.ID.Selection;
+                    tablePath = path;
+                    table = item.ID.Selection;
+                    title = item.Text;
+                    if (((TableLink)item).Published != null)
+                    {
+                        published = (DateTime)((TableLink)item).Published;
+                    }
+                }
+                indexer.AddPaxiomDocument(database, id, tablePath, table, title, published, model.Meta);
+            }
+        }
+
+        /// <summary>
+        /// Get table id without database name
+        /// Example: If node.Selection = databaseid:tableid then tableid will be returned
+        /// </summary>
+        /// <param name="node">node representing the table</param>
+        /// <returns>Table id as a string</returns>
+        private string CleanTableId(ItemSelection node)
+        {
+            int index = node.Selection.IndexOf(":");
+
+            if ((index > -1) && (node.Selection.Length > index))
+            {
+                return node.Selection.Substring(index + 1);
+            }
+            else
+            {
+                return node.Selection;
+            }
+        }
 
         /// <summary>
         /// Set the index base directory

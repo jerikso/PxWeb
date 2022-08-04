@@ -35,7 +35,7 @@ namespace PCAxis.Search
         /// <param name="indexDirectory">Index directory</param>
         /// <param name="menuMethod">Delegate method to get the Menu</param>
         /// <param name="database">Database id</param>
-        /// <param name="langyuage">Language</param>
+        /// <param name="language">Language</param>
         public Indexer(string indexDirectory, GetMenuDelegate menuMethod, string database, string language)
         {
             _indexDirectory = indexDirectory;
@@ -53,8 +53,6 @@ namespace PCAxis.Search
         {
             try
             {
-
-
                 using (IndexWriter writer = CreateIndexWriter(true))
                 {
                     if (writer == null)

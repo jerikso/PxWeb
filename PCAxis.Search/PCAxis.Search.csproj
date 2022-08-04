@@ -138,8 +138,14 @@
   <ItemGroup>
     <Compile Include="DefaultOperator.cs" />
     <Compile Include="DefaultSearchIndex.cs" />
+    <Compile Include="IIndexer.cs" />
     <Compile Include="Indexer.cs" />
+    <Compile Include="IPxSearchProvider.cs" />
+    <Compile Include="ISearcher.cs" />
     <Compile Include="ISearchIndex.cs" />
+    <Compile Include="LuceneIndexer.cs" />
+    <Compile Include="LuceneProvider.cs" />
+    <Compile Include="LuceneSearcher.cs" />
     <Compile Include="PaxiomHelperExtensions.cs" />
     <Compile Include="PxModelManager.cs" />
     <Compile Include="SearchConstants.cs" />

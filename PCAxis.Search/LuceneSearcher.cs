@@ -41,8 +41,14 @@ namespace PcAxis.Search
             }
         }
 
-        public List<SearchResultItem> Search(string text, string filter, int resultListLength)
+        public List<SearchResultItem> Search(string text, string filter, int resultListLength, out SearchStatusType status)
         {
+            if (!System.IO.Directory.Exists(_indexDirectory))
+            {
+                status = SearchStatusType.NotIndexed;
+                return new List<SearchResultItem>();
+            }
+
             List<SearchResultItem> searchResult = new List<SearchResultItem>();
             string[] fields = GetSearchFields(filter);
 
@@ -68,7 +74,24 @@ namespace PcAxis.Search
                 });
             }
 
+            status = SearchStatusType.Successful;
             return searchResult;
+        }
+
+        /// <summary>
+        /// Set which operator AND/OR will be used by default when more than one word is specified for a search query
+        /// </summary>
+        /// <param name="defaultOPerator"></param>
+        public void SetDefaultOperator(DefaultOperator defaultOperator)
+        {
+            if (defaultOperator == DefaultOperator.OR)
+            {
+                _defaultOperator = Lucene.Net.QueryParsers.QueryParser.Operator.OR;
+            }
+            else
+            {
+                _defaultOperator = Lucene.Net.QueryParsers.QueryParser.Operator.AND;
+            }
         }
 
         /// <summary>
@@ -79,21 +102,6 @@ namespace PcAxis.Search
             get
             {
                 return _creationTime;
-            }
-        }
-
-        /// <summary>
-        /// Default operator AND/OR that will be used when more than 1 word is specified in a search querie
-        /// </summary>
-        public static QueryParser.Operator DefaultOperator
-        {
-            get
-            {
-                return _defaultOperator;
-            }
-            set
-            {
-                _defaultOperator = value;
             }
         }
 

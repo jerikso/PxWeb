@@ -42,11 +42,12 @@ namespace PCAxis.Search
         #region "Private fields"
         
         private static SearchManager _current = new SearchManager();
-        private DirectoryInfo _databaseBaseDirectory;
+        private string _databaseBaseDirectory;
         private GetMenuDelegate _menuMethod;
         private static log4net.ILog _logger = log4net.LogManager.GetLogger(typeof(SearchManager));
         private FileSystemWatcher _dbConfigWatcher;
         private int _cacheTime;
+        private DefaultOperator _defaultOperator;
         
         #endregion
 
@@ -98,7 +99,7 @@ namespace PCAxis.Search
         /// <param name="cacheTime">Time in minutes that searchers will be cached</param>
         public void Initialize(string databaseBaseDirectory, GetMenuDelegate menuMethod, int cacheTime=60, DefaultOperator defaultOperator=DefaultOperator.OR)
         {
-            SetDatabaseBaseDirectory(databaseBaseDirectory);
+            _databaseBaseDirectory = databaseBaseDirectory;
             SetDbConfigWatcher();
             _menuMethod = menuMethod;
             _cacheTime = cacheTime;
@@ -115,8 +116,8 @@ namespace PCAxis.Search
         public bool CreateIndex(string database, string language)
         {
             //Indexer indexer = new Indexer(GetIndexDirectoryPath(database, language), _menuMethod, database, language);
-            IPxSearchProvider searchProvider = new LuceneProvider();
-            IIndexer indexer = searchProvider.GetIndexer(GetIndexDirectoryPath(database, language), _menuMethod, database, language);
+            IPxSearchProvider searchProvider = new LuceneProvider(_databaseBaseDirectory,database,language);
+            IIndexer indexer = searchProvider.GetIndexer();
             indexer.Create(true);
 
             try
@@ -129,7 +130,6 @@ namespace PCAxis.Search
                 if (db == null)
                 {
                     _logger.Error("Failed to access database '" + database + "'. Creation of search index aborted.");
-                    indexer.Rollback(); 
                     _logger.Error("Rollback of '" + database + "' done");
                     return false;
                 }
@@ -159,12 +159,15 @@ namespace PCAxis.Search
                     }
                 }
 
-                indexer.Dispose();
+                indexer.End();
             }
             catch (Exception e)
             {
                 _logger.Error(e);
                 throw;
+            }
+            finally {
+                indexer.Dispose();  
             }
         
 
@@ -179,8 +182,8 @@ namespace PCAxis.Search
         /// <param name="language">language</param>
         public bool UpdateIndex(string database, string language, List<TableUpdate> tableList)
         {
-            IPxSearchProvider searchProvider = new LuceneProvider();
-            IIndexer indexer = searchProvider.GetIndexer(GetIndexDirectoryPath(database, language), _menuMethod, database, language);
+            IPxSearchProvider searchProvider = new LuceneProvider(_databaseBaseDirectory,database,language);
+            IIndexer indexer = searchProvider.GetIndexer();
             indexer.Create(false);
 
             ItemSelection node = null;
@@ -190,7 +193,8 @@ namespace PCAxis.Search
             string menu, selection;
             DateTime published = DateTime.MinValue;
             bool doUpdate;
-
+            //using (IIndexer indexer = searchProvider.GetIndexer(GetIndexDirectoryPath(database, language), database, language);)
+            //indexer.Create()
             try
             {
                 foreach (TableUpdate table in tableList)
@@ -238,16 +242,16 @@ namespace PCAxis.Search
                         _logger.Info("Search index " + database + " - " + language + " updated table " + table.Id);
                     }
                 }
-
-                indexer.Dispose();
+                indexer.End();
             }
             catch (Exception e)
             {
-                indexer.Rollback();
                 _logger.Error(e);
                 throw;
             }
-
+            finally {
+                indexer.Dispose();
+            }
             RemoveSearcher(database, language);
             return true;
         }
@@ -262,20 +266,18 @@ namespace PCAxis.Search
         /// <returns></returns>
         public List<SearchResultItem> Search(string database, string language, string text, out SearchStatusType status, string filter = "", int resultListLength = 250)
         {
-            //Searcher searcher = GetSearcher(database, language);
-            IPxSearchProvider searchProvider = new LuceneProvider();
-            string dir = GetIndexDirectoryPath(database, language);
+            ISearcher searcher = GetSearcher(database, language);
+            searcher.SetDefaultOperator(_defaultOperator);
 
-            if (!Directory.Exists(dir))
+            if (searcher == null)
             {
+                // Return empty list
                 status = SearchStatusType.NotIndexed;
                 return new List<SearchResultItem>();
             }
 
-            ISearcher searcher = searchProvider.GetSearcher(dir);
-            
-            status = SearchStatusType.Successful;
-            return searcher.Search(text, filter, resultListLength);
+            //status = SearchStatusType.Successful;
+            return searcher.Search(text, filter, resultListLength, out status);
         }
 
         /// <summary>
@@ -284,14 +286,7 @@ namespace PCAxis.Search
         /// <param name="defaultOPerator"></param>
         public void SetDefaultOperator(DefaultOperator defaultOperator)
         {
-            if (defaultOperator == DefaultOperator.OR)
-            {
-                Searcher.DefaultOperator = Lucene.Net.QueryParsers.QueryParser.Operator.OR;
-            }
-            else
-            {
-                Searcher.DefaultOperator = Lucene.Net.QueryParsers.QueryParser.Operator.AND;
-            }
+            _defaultOperator = defaultOperator;
         }
 
         #endregion
@@ -412,50 +407,20 @@ namespace PCAxis.Search
         }
 
         /// <summary>
-        /// Set the index base directory
-        /// </summary>
-        /// <param name="indexDirectory">Base directory for all search indexes</param>
-        private void SetDatabaseBaseDirectory(string databaseBaseDirectory)
-        {
-            if (!System.IO.Path.IsPathRooted(databaseBaseDirectory))
-            {
-                databaseBaseDirectory = HttpContext.Current.Server.MapPath(databaseBaseDirectory);
-            }
-
-            if (System.IO.Directory.Exists(databaseBaseDirectory))
-            {
-                _databaseBaseDirectory = new DirectoryInfo(databaseBaseDirectory);
-                _logger.Info("Search index base directory successfully set to '" + databaseBaseDirectory + "'");
-            }
-            else
-            {
-                _logger.Error("Failed to set search index base directory. Directory '" + databaseBaseDirectory + "' does not exist");
-            }
-        }
-
-        /// <summary>
-        /// Get path to the specified index directory 
-        /// </summary>
-        /// <param name="database">database</param>
-        /// <param name="language">language</param>
-        /// <returns></returns>
-        private string GetIndexDirectoryPath(string database, string language)
-        {
-            StringBuilder dir = new StringBuilder(_databaseBaseDirectory.FullName);
-
-            dir.Append(database);
-            dir.Append(@"\_INDEX\");
-            dir.Append(language);
-
-            return dir.ToString();
-        }
-
-        /// <summary>
         /// Add file system watcher for the database.config files
         /// </summary>
         private void SetDbConfigWatcher()
         {
-            _dbConfigWatcher = new FileSystemWatcher(_databaseBaseDirectory.FullName);
+            string dir;
+            if (Path.IsPathRooted(_databaseBaseDirectory))
+            {
+                dir = _databaseBaseDirectory;
+            }
+            else
+            {
+                dir = HttpContext.Current.Server.MapPath(_databaseBaseDirectory);
+            }
+            _dbConfigWatcher = new FileSystemWatcher(dir);
             _dbConfigWatcher.EnableRaisingEvents = true;
             _dbConfigWatcher.IncludeSubdirectories = true;
             _dbConfigWatcher.Filter = "database.config";
@@ -483,7 +448,7 @@ namespace PCAxis.Search
                 foreach (DirectoryInfo langDir in indexDir.GetDirectories())
                 {
                     string key = CreateSearcherKey(dbDir.Name, langDir.Name);
-                    Searcher searcher = (Searcher)System.Web.Hosting.HostingEnvironment.Cache[key];
+                    ISearcher searcher = (ISearcher)System.Web.Hosting.HostingEnvironment.Cache[key];
 
                     if (searcher != null)
                     {
@@ -534,28 +499,23 @@ namespace PCAxis.Search
         /// <param name="database">database</param>
         /// <param name="language">language</param>
         /// <returns></returns>
-        public Searcher GetSearcher(string database, string language)
+        public ISearcher GetSearcher(string database, string language)
         {
-            string dir = GetIndexDirectoryPath(database, language);
-
-            if (!System.IO.Directory.Exists(dir))
-            {
-                return null;
-            }
 
             string key = CreateSearcherKey(database, language);
 
             if (System.Web.Hosting.HostingEnvironment.Cache[key] == null)
             {
+                IPxSearchProvider searchProvider = new LuceneProvider(_databaseBaseDirectory,database,language);
                 // Create new Searcher and add to cache
-                Searcher searcher = new Searcher(dir);
+                ISearcher searcher = searchProvider.GetSearcher();
 
                 // Add searcher to cache for 5 minutes
                 System.Web.Hosting.HostingEnvironment.Cache.Insert(key, searcher, null, DateTime.Now.AddMinutes(_cacheTime), System.Web.Caching.Cache.NoSlidingExpiration);
             }
 
             // Get from cache
-            return (Searcher)System.Web.Hosting.HostingEnvironment.Cache[key];
+            return (ISearcher)System.Web.Hosting.HostingEnvironment.Cache[key];
         }
 
         /// <summary>

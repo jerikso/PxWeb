@@ -9,8 +9,8 @@ namespace PCAxis.Search
 {
     public interface IPxSearchProvider
     {
-        ISearcher GetSearcher(string indexDirectory);
-        IIndexer GetIndexer(string indexDirectory, GetMenuDelegate menuMethod, string database, string language);
+        ISearcher GetSearcher();
+        IIndexer GetIndexer();
     }
 
 }

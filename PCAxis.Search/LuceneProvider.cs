@@ -1,17 +1,67 @@
 ﻿using PCAxis.Search;
+using System.IO;
+using System.Web;
+using System.Text;
 
 namespace PcAxis.Search
 {
     public class LuceneProvider : IPxSearchProvider
     {
-        public IIndexer GetIndexer(string indexDirectory, GetMenuDelegate menuMethod, string database, string language)
-        {
-            return new LuceneIndexer(indexDirectory, menuMethod, database, language);
+        private string _database;
+        private string _language;
+        private DirectoryInfo _databaseBaseDirectory;
+        public LuceneProvider(string databaseBaseDirectory, string database, string language) {
+            _database = database;
+            _language = language;
+            _databaseBaseDirectory = GetDatabaseBaseDirectory(databaseBaseDirectory);
         }
 
-        public ISearcher GetSearcher(string indexDirectory)
+
+        public IIndexer GetIndexer()
         {
-            return new LuceneSearcher(indexDirectory);
+            string path = GetIndexDirectoryPath();
+            return new LuceneIndexer(path, _database);
+        }
+
+        public ISearcher GetSearcher()
+        {
+            string path = GetIndexDirectoryPath();
+            return new LuceneSearcher(path);
+        }
+
+        /// <summary>
+        /// Set the index base directory
+        /// </summary>
+        /// <param name="indexDirectory">Base directory for all search indexes</param>
+        private DirectoryInfo GetDatabaseBaseDirectory(string databaseBaseDirectory)
+        {
+            if (!System.IO.Path.IsPathRooted(databaseBaseDirectory))
+            {
+                databaseBaseDirectory = System.Web.Hosting.HostingEnvironment.MapPath(databaseBaseDirectory);
+            }
+
+            if (System.IO.Directory.Exists(databaseBaseDirectory))
+            {
+                return new DirectoryInfo(databaseBaseDirectory);
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// Get path to the specified index directory 
+        /// </summary>
+        /// <param name="database">database</param>
+        /// <param name="language">language</param>
+        /// <returns></returns>
+        private string GetIndexDirectoryPath()
+        {
+            StringBuilder dir = new StringBuilder(_databaseBaseDirectory.FullName);
+
+            dir.Append(_database);
+            dir.Append(@"\_INDEX\");
+            dir.Append(_language);
+
+            return dir.ToString();
         }
     }
 }

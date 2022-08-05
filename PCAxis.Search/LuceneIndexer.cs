@@ -18,25 +18,20 @@ namespace PcAxis.Search
     public class LuceneIndexer : IIndexer
     {
         private string _indexDirectory;
-        private GetMenuDelegate _menuMethod;
         private string _database;
-        private string _language;
         private static log4net.ILog _logger = log4net.LogManager.GetLogger(typeof(Indexer));
         private IndexWriter _writer;
+        private bool _running;
 
         /// <summary>
         /// Constructor
         /// </summary>
         /// <param name="indexDirectory">Index directory</param>
-        /// <param name="menuMethod">Delegate method to get the Menu</param>
         /// <param name="database">Database id</param>
-        /// <param name="language">Language</param>
-        public LuceneIndexer(string indexDirectory, GetMenuDelegate menuMethod, string database, string language)
+        public LuceneIndexer(string indexDirectory, string database)
         {
             _indexDirectory = indexDirectory;
-            _menuMethod = menuMethod;
             _database = database;
-            _language = language;
 
         }
         public void AddPaxiomDocument(string database, string id, string path, string table, string title, DateTime published, PXMeta meta)
@@ -63,13 +58,18 @@ namespace PcAxis.Search
 
         public void Dispose()
         {
-            _writer.Optimize();
+            if (_running) {
+                _writer.Rollback(); 
+            }
+            else {
+                _writer.Optimize();
+            }
             _writer.Dispose();
         }
 
-        public void Rollback()
+        public void End()
         {
-            _writer.Rollback();
+            _running = false;
         }
 
         /// <summary>

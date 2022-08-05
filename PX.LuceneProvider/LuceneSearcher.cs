@@ -1,4 +1,4 @@
-﻿using PCAxis.Search;
+﻿using PX.SearchAbstractions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,7 +11,7 @@ using Lucene.Net.Documents;
 using Lucene.Net.Analysis.Standard;
 using PCAxis.Paxiom.Extensions;
 
-namespace PcAxis.Search
+namespace PX.LuceneProvider
 {
     public class LuceneSearcher : ISearcher
     {

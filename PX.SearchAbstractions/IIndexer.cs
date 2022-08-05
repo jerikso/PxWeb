@@ -1,11 +1,7 @@
 ﻿using PCAxis.Paxiom;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace PCAxis.Search
+namespace PX.SearchAbstractions
 {
     public interface IIndexer : IDisposable
     {

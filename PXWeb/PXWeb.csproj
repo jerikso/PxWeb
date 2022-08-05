@@ -901,10 +901,6 @@
       <Project>{DF9DA2F6-7942-4834-8B51-8F6358DE8DB8}</Project>
       <Name>PCAxis.Chart</Name>
     </ProjectReference>
-    <ProjectReference Include="..\PCAxis.Search\PCAxis.Search.csproj">
-      <Project>{dd41bc03-2b7a-4d76-af3c-39830ae8e75d}</Project>
-      <Name>PCAxis.Search</Name>
-    </ProjectReference>
     <ProjectReference Include="..\PCAxis.Web.Controls\PCAxis.Web.Controls.vbproj">
       <Project>{0f886ccb-3476-4756-816c-7792a9c73fe2}</Project>
       <Name>PCAxis.Web.Controls</Name>

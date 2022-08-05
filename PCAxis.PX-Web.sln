@@ -19,8 +19,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PCAxis.Api", "PCAxis.Api\PC
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PCAxis.Excel.Web.Controls", "PCAxis.Excel.Web.Controls\PCAxis.Excel.Web.Controls.csproj", "{30D1FC66-E47B-4417-8BD5-1693F09E028B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PCAxis.Search", "PCAxis.Search\PCAxis.Search.csproj", "{DD41BC03-2B7A-4D76-AF3C-39830AE8E75D}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PCAxis.JsonStat.Web.Controls", "PCAxis.JsonStat.Web.Controls\PCAxis.JsonStat.Web.Controls.csproj", "{6C558014-E4DB-4399-A759-12E916F0BA4E}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{E255536D-7C9F-42A7-9C95-2CBD7E216CFE}"
@@ -40,11 +38,17 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PCAxis.JsonStat2.Web.Contro
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PxWeb.Test", "PxWeb.Test\PxWeb.Test.csproj", "{429D9512-FBD2-4B02-8138-40F692C6C414}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PX.Search", "PX.Search\PX.Search.csproj", "{1250F8A8-514E-4D67-B88A-D2CDFD91A879}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PX.Search", "PX.Search\PX.Search.csproj", "{1250F8A8-514E-4D67-B88A-D2CDFD91A879}"
+	ProjectSection(ProjectDependencies) = postProject
+		{BC004D40-DDC6-446E-A3DF-5D4BA0AE92B8} = {BC004D40-DDC6-446E-A3DF-5D4BA0AE92B8}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PX.LuceneProvider", "PX.LuceneProvider\PX.LuceneProvider.csproj", "{4F0494B9-F885-4841-8E9E-2D2750611919}"
+	ProjectSection(ProjectDependencies) = postProject
+		{4F357082-67D3-405D-A3AE-88EF79ECF12C} = {4F357082-67D3-405D-A3AE-88EF79ECF12C}
+	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PX.SearchAbstractions", "PX.SearchAbstractions\PX.SearchAbstractions.csproj", "{4F357082-67D3-405D-A3AE-88EF79ECF12C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PX.SearchAbstractions", "PX.SearchAbstractions\PX.SearchAbstractions.csproj", "{4F357082-67D3-405D-A3AE-88EF79ECF12C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -84,10 +88,6 @@ Global
 		{30D1FC66-E47B-4417-8BD5-1693F09E028B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{30D1FC66-E47B-4417-8BD5-1693F09E028B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{30D1FC66-E47B-4417-8BD5-1693F09E028B}.Release|Any CPU.Build.0 = Release|Any CPU
-		{DD41BC03-2B7A-4D76-AF3C-39830AE8E75D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{DD41BC03-2B7A-4D76-AF3C-39830AE8E75D}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{DD41BC03-2B7A-4D76-AF3C-39830AE8E75D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{DD41BC03-2B7A-4D76-AF3C-39830AE8E75D}.Release|Any CPU.Build.0 = Release|Any CPU
 		{6C558014-E4DB-4399-A759-12E916F0BA4E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{6C558014-E4DB-4399-A759-12E916F0BA4E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6C558014-E4DB-4399-A759-12E916F0BA4E}.Release|Any CPU.ActiveCfg = Release|Any CPU

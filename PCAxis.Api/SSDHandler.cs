@@ -110,7 +110,7 @@ namespace PCAxis.Api
         /// <param name="language"></param>
         /// <param name="query"></param>
         /// <param name="filter"></param>
-        private IEnumerable<PCAxis.Search.SearchResultItem> GetSearchResult(string database, string language, string query, string filter, List<string> routeParts, out PCAxis.Search.SearchStatusType status)
+        private IEnumerable<PX.Search.SearchResultItem> GetSearchResult(string database, string language, string query, string filter, List<string> routeParts, out PCAxis.Search.SearchStatusType status)
         {
             System.Text.StringBuilder nodeFilter = new System.Text.StringBuilder(); // Only include tables under this node
             var db = ExposedDatabases.DatabaseConfigurations[language][database];

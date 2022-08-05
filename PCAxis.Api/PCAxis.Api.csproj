@@ -242,10 +242,6 @@
       <Project>{DF9DA2F6-7942-4834-8B51-8F6358DE8DB8}</Project>
       <Name>PCAxis.Chart</Name>
     </ProjectReference>
-    <ProjectReference Include="..\PCAxis.Search\PCAxis.Search.csproj">
-      <Project>{dd41bc03-2b7a-4d76-af3c-39830ae8e75d}</Project>
-      <Name>PCAxis.Search</Name>
-    </ProjectReference>
     <ProjectReference Include="..\PX.Web.Interfaces\PX.Web.Interfaces.csproj">
       <Project>{01468f9c-f679-49fe-9c9f-b127868d86a6}</Project>
       <Name>PX.Web.Interfaces</Name>

@@ -1,5 +1,5 @@
 ﻿using PCAxis.Paxiom;
-using PCAxis.Search;
+using PX.SearchAbstractions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,13 +13,12 @@ using PCAxis.Web.Core.Enums;
 using PCAxis.Paxiom.Extensions;
 
 
-namespace PcAxis.Search
+namespace PX.LuceneProvider
 {
     public class LuceneIndexer : IIndexer
     {
         private string _indexDirectory;
         private string _database;
-        private static log4net.ILog _logger = log4net.LogManager.GetLogger(typeof(Indexer));
         private IndexWriter _writer;
         private bool _running;
 
@@ -130,7 +129,6 @@ namespace PcAxis.Search
 
             if (IndexWriter.IsLocked(fsDir))
             {
-                _logger.Error("Index directory " + _indexDirectory + " is locked - cannot write index");
                 return null;
             }
 

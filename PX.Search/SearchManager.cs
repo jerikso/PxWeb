@@ -1,4 +1,6 @@
 ﻿using System;
+using PX.SearchAbstractions;
+using PX.LuceneProvider;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,18 +13,8 @@ using PCAxis.Paxiom.Extensions;
 using PCAxis.Web.Core.Enums;
 using PCAxis.Paxiom;
 
-namespace PCAxis.Search
+namespace PX.Search
 {
-    /// <summary>
-    /// Describes status of a search attempt
-    /// </summary>
-    public enum SearchStatusType
-    {
-        // A successful search has been made
-        Successful,
-        // No search index existed for the database/language
-        NotIndexed
-    }
     
     /// <summary>
     /// Delegate function for getting the Menu
@@ -98,7 +90,6 @@ namespace PCAxis.Search
         /// <param name="cacheTime">Time in minutes that searchers will be cached</param>
         public void Initialize(string databaseBaseDirectory, GetMenuDelegate menuMethod, int cacheTime=60, DefaultOperator defaultOperator=DefaultOperator.OR)
         {
-            // check if rooted
             _databaseBaseDirectory = databaseBaseDirectory;
             SetDbConfigWatcher();
             _menuMethod = menuMethod;
@@ -116,7 +107,7 @@ namespace PCAxis.Search
         public bool CreateIndex(string database, string language)
         {
             //Indexer indexer = new Indexer(GetIndexDirectoryPath(database, language), _menuMethod, database, language);
-            IPxSearchProvider searchProvider = new LuceneProvider(_databaseBaseDirectory,database,language);
+            IPxSearchProvider searchProvider = new LuceneSearchProvider(_databaseBaseDirectory,database,language);
             IIndexer indexer = searchProvider.GetIndexer();
             indexer.Create(true);
 
@@ -182,7 +173,7 @@ namespace PCAxis.Search
         /// <param name="language">language</param>
         public bool UpdateIndex(string database, string language, List<TableUpdate> tableList)
         {
-            IPxSearchProvider searchProvider = new LuceneProvider(_databaseBaseDirectory,database,language);
+            IPxSearchProvider searchProvider = new LuceneSearchProvider(_databaseBaseDirectory,database,language);
             IIndexer indexer = searchProvider.GetIndexer();
             indexer.Create(false);
 
@@ -506,7 +497,7 @@ namespace PCAxis.Search
 
             if (System.Web.Hosting.HostingEnvironment.Cache[key] == null)
             {
-                IPxSearchProvider searchProvider = new LuceneProvider(_databaseBaseDirectory,database,language);
+                IPxSearchProvider searchProvider = new LuceneSearchProvider(_databaseBaseDirectory,database,language);
                 // Create new Searcher and add to cache
                 ISearcher searcher = searchProvider.GetSearcher();
 

@@ -1,16 +1,16 @@
-﻿using PCAxis.Search;
+﻿using PX.SearchAbstractions;
 using System.IO;
 using System.Web;
 using System.Text;
 
-namespace PcAxis.Search
+namespace PX.LuceneProvider
 {
-    public class LuceneProvider : IPxSearchProvider
+    public class LuceneSearchProvider : IPxSearchProvider
     {
         private string _database;
         private string _language;
         private DirectoryInfo _databaseBaseDirectory;
-        public LuceneProvider(string databaseBaseDirectory, string database, string language) {
+        public LuceneSearchProvider(string databaseBaseDirectory, string database, string language) {
             _database = database;
             _language = language;
             _databaseBaseDirectory = GetDatabaseBaseDirectory(databaseBaseDirectory);

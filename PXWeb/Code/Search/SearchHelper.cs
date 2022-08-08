@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
-using PCAxis.Search;
+using PX.SearchAbstractions;
 using System.Text;
 using PCAxis.Web.Core.Management;
 using PCAxis.Web.Controls;

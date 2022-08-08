@@ -909,6 +909,14 @@
       <Project>{BC004D40-DDC6-446E-A3DF-5D4BA0AE92B8}</Project>
       <Name>PCAxis.Web.Core</Name>
     </ProjectReference>
+    <ProjectReference Include="..\PX.SearchAbstractions\PX.SearchAbstractions.csproj">
+      <Project>{4f357082-67d3-405d-a3ae-88ef79ecf12c}</Project>
+      <Name>PX.SearchAbstractions</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\PX.Search\PX.Search.csproj">
+      <Project>{1250f8a8-514e-4d67-b88a-d2cdfd91a879}</Project>
+      <Name>PX.Search</Name>
+    </ProjectReference>
     <ProjectReference Include="..\PX.Security\PX.Security.csproj">
       <Project>{dcb50c42-c3d0-48f9-9c1f-8d5af99ddb95}</Project>
       <Name>PX.Security</Name>

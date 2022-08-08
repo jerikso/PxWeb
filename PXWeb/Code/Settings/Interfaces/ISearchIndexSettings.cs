@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using PCAxis.Search;
+using PX.Search;
 
 namespace PXWeb
 {

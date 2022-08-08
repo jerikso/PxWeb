@@ -6,7 +6,8 @@ using System.Threading;
 using log4net;
 using System.IO;
 using PCAxis.Paxiom;
-using PCAxis.Search;
+using PX.SearchAbstractions;
+using PX.Search;
 using PCAxis.Paxiom.Extensions;
 
 namespace PXWeb.BackgroundWorker
@@ -366,7 +367,7 @@ namespace PXWeb.BackgroundWorker
 
                 foreach (LanguageSettings lang in PXWeb.Settings.Current.General.Language.SiteLanguages)
                 {
-                    List<PCAxis.Search.TableUpdate> lst = searchIndex.UpdateMethod.GetUpdatedTables(dateFrom, "ssd_extern_test", lang.Name);
+                    List<PX.SearchAbstractions.TableUpdate> lst = searchIndex.UpdateMethod.GetUpdatedTables(dateFrom, "ssd_extern_test", lang.Name);
 
                     if (lst.Count > 0)
                     {

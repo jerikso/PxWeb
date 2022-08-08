@@ -4,10 +4,11 @@ using System.Linq;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
-using PCAxis.Search;
+using PX.SearchAbstractions;
 using System.Text;
 using PCAxis.Web.Core.Management;
 using PXWeb.UserControls;
+using PX.Search;
 
 namespace PXWeb
 {
@@ -99,7 +100,7 @@ namespace PXWeb
             if (!string.IsNullOrEmpty(db) && !string.IsNullOrEmpty(lang) && !string.IsNullOrEmpty(_searchQuery))
             {
                 string filter = GetFilter();
-                PCAxis.Search.SearchStatusType status;
+                PX.SearchAbstractions.SearchStatusType status;
                 List<SearchResultItem> result = new List<SearchResultItem>();
                 List<SearchResultItem> tmpResult = SearchManager.Current.Search(db, lang, _searchQuery, out status, filter, PXWeb.Settings.Current.Features.Search.ResultListLength);
 
@@ -132,7 +133,7 @@ namespace PXWeb
             {
                 if (chkTitle.Checked)
                 {
-                    filter.Append(PCAxis.Search.SearchConstants.SEARCH_FIELD_TITLE);
+                    filter.Append(PX.SearchAbstractions.SearchConstants.SEARCH_FIELD_TITLE);
                     first = false;
                 }
 
@@ -142,7 +143,7 @@ namespace PXWeb
                     {
                         filter.Append(",");
                     }
-                    filter.Append(PCAxis.Search.SearchConstants.SEARCH_FIELD_VALUES);
+                    filter.Append(PX.SearchAbstractions.SearchConstants.SEARCH_FIELD_VALUES);
                     first = false;
                 }
 
@@ -152,7 +153,7 @@ namespace PXWeb
                     {
                         filter.Append(",");
                     }
-                    filter.Append(PCAxis.Search.SearchConstants.SEARCH_FIELD_CODES);
+                    filter.Append(PX.SearchAbstractions.SearchConstants.SEARCH_FIELD_CODES);
                     first = false;
                 }
             }

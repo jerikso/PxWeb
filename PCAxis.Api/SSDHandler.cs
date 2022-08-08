@@ -110,7 +110,7 @@ namespace PCAxis.Api
         /// <param name="language"></param>
         /// <param name="query"></param>
         /// <param name="filter"></param>
-        private IEnumerable<PX.Search.SearchResultItem> GetSearchResult(string database, string language, string query, string filter, List<string> routeParts, out PCAxis.Search.SearchStatusType status)
+        private IEnumerable<PX.SearchAbstractions.SearchResultItem> GetSearchResult(string database, string language, string query, string filter, List<string> routeParts, out PX.SearchAbstractions.SearchStatusType status)
         {
             System.Text.StringBuilder nodeFilter = new System.Text.StringBuilder(); // Only include tables under this node
             var db = ExposedDatabases.DatabaseConfigurations[language][database];
@@ -135,11 +135,11 @@ namespace PCAxis.Api
             //could not find a magic int ...
             
             // Get all tables that match the query under the search node
-            var result = PCAxis.Search.SearchManager.Current.Search(database, language, query, out status, filter,1000000).Where(r => r.Path.StartsWith(nodeFilter.ToString())).ToList();
+            var result = PX.Search.SearchManager.Current.Search(database, language, query, out status, filter,1000000).Where(r => r.Path.StartsWith(nodeFilter.ToString())).ToList();
 
             // Make the path in the result items relative the search node
             int length = nodeFilter.ToString().Length;
-            foreach (PCAxis.Search.SearchResultItem item in result)
+            foreach (PX.SearchAbstractions.SearchResultItem item in result)
             {
                 item.Path = item.Path.Substring(length);
             }
@@ -482,11 +482,11 @@ namespace PCAxis.Api
                             if (strNodePath.Length == 1 && strNodePath[0] != "")
                             {
                                 var possibleNameOrId = strNodePath[0];
-                                PCAxis.Search.SearchStatusType status;
-                                var text = string.Format("{0}:{2} OR {1}:{2}", PCAxis.Search.SearchConstants.SEARCH_FIELD_SEARCHID, PCAxis.Search.SearchConstants.SEARCH_FIELD_TABLEID, possibleNameOrId);
-                                var results = PCAxis.Search.SearchManager.Current.Search(db, language, text, out status);
+                                PX.SearchAbstractions.SearchStatusType status;
+                                var text = string.Format("{0}:{2} OR {1}:{2}", PX.SearchAbstractions.SearchConstants.SEARCH_FIELD_SEARCHID, PX.SearchAbstractions.SearchConstants.SEARCH_FIELD_TABLEID, possibleNameOrId);
+                                var results = PX.Search.SearchManager.Current.Search(db, language, text, out status);
 
-                                if (status == Search.SearchStatusType.Successful && results.Count > 0)
+                                if (status == PX.SearchAbstractions.SearchStatusType.Successful && results.Count > 0)
                                 {
                                     if (_logger.IsDebugEnabled)
                                     {
@@ -522,12 +522,12 @@ namespace PCAxis.Api
                                 if (!string.IsNullOrEmpty(options.SearchQuery))
                                 {
                                     // Find tables using the search function
-                                    PCAxis.Search.SearchStatusType status;
+                                    PX.SearchAbstractions.SearchStatusType status;
 
                                     cacheResponse.ContentType = "application/json; charset=" + System.Text.Encoding.UTF8.WebName;
                                     cacheResponse.ResponseData = context.Response.ContentEncoding.GetBytes(GetSearchResult(db, language, options.SearchQuery, options.SearchFilter, routeParts, out status).ToJSON(options.PrettyPrint));
                                     
-                                    if (status == Search.SearchStatusType.Successful)
+                                    if (status == PX.SearchAbstractions.SearchStatusType.Successful)
                                     {
                                         context.Send(cacheResponse, false); // Send without caching
                                     }

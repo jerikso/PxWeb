@@ -305,11 +305,11 @@ namespace PXWeb
         /// </summary>
         /// <param name="xpath">Expression to select node containing setting value</param>
         /// <param name="selectionNode">Node to apply xpath expression on</param>
-        /// <param name="defaultValue">Value to return if node is not found or not possible to parse as a PCAxis.Search.DefaultOperator</param>
-        /// <returns>Setting value as PCAxis.Search.DefaultOperator</returns>
-        public static PCAxis.Search.DefaultOperator GetSettingValue(string xpath, XmlNode selectionNode, PCAxis.Search.DefaultOperator defaultValue)
+        /// <param name="defaultValue">Value to return if node is not found or not possible to parse as a PX.SearchAbstractions.DefaultOperator</param>
+        /// <returns>Setting value as PX.SearchAbstractions.DefaultOperator</returns>
+        public static PX.SearchAbstractions.DefaultOperator GetSettingValue(string xpath, XmlNode selectionNode, PX.SearchAbstractions.DefaultOperator defaultValue)
         {
-            PCAxis.Search.DefaultOperator returnValue = defaultValue;
+            PX.SearchAbstractions.DefaultOperator returnValue = defaultValue;
             XmlNode node = null;
             if (selectionNode != null)
             {
@@ -320,13 +320,13 @@ namespace PXWeb
                 switch (node.InnerText)
                 {
                     case "AND":
-                        returnValue = PCAxis.Search.DefaultOperator.AND;
+                        returnValue = PX.SearchAbstractions.DefaultOperator.AND;
                         break;
                     case "OR":
-                        returnValue = PCAxis.Search.DefaultOperator.OR;
+                        returnValue = PX.SearchAbstractions.DefaultOperator.OR;
                         break;
                     default:
-                        returnValue = PCAxis.Search.DefaultOperator.OR;
+                        returnValue = PX.SearchAbstractions.DefaultOperator.OR;
                         break;
                 }
             }

@@ -23,6 +23,6 @@ namespace PXWeb
         /// <summary>
         /// The operator AND/OR that will be used by default if more than one word is specified in a search query
         /// </summary>
-        PCAxis.Search.DefaultOperator DefaultOperator { get; }
+        PX.SearchAbstractions.DefaultOperator DefaultOperator { get; }
     }
 }

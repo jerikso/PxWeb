@@ -15,7 +15,7 @@ namespace PXWeb
         
         public int CacheTime { get; set; }
         public int ResultListLength { get; set; }
-        public PCAxis.Search.DefaultOperator DefaultOperator { get; set; }
+        public PX.SearchAbstractions.DefaultOperator DefaultOperator { get; set; }
         
         #endregion
 
@@ -37,7 +37,7 @@ namespace PXWeb
             ResultListLength = SettingsHelper.GetSettingValue(xpath, searchNode, 250);
 
             xpath = "./defaultOperator";
-            DefaultOperator = SettingsHelper.GetSettingValue(xpath, searchNode, PCAxis.Search.DefaultOperator.OR);
+            DefaultOperator = SettingsHelper.GetSettingValue(xpath, searchNode, PX.SearchAbstractions.DefaultOperator.OR);
         }
 
         /// <summary>

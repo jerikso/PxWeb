@@ -11,7 +11,7 @@ using PCAxis.Chart;
 using PCAxis.Web.Controls;
 using System.Web.Routing;
 using PCAxis.Api;
-using PCAxis.Search;
+using PX.SearchAbstractions;
 using PXWeb.BackgroundWorker;
 using System.Collections.Generic;
 using log4net;
@@ -249,8 +249,8 @@ namespace PXWeb
             }
 
             //Initialize Index search
-            SearchManager.Current.Initialize(PXWeb.Settings.Current.General.Paths.PxDatabasesPath, 
-                                            new PCAxis.Search.GetMenuDelegate(PXWeb.Management.PxContext.GetMenuAndItem),
+            PX.Search.SearchManager.Current.Initialize(PXWeb.Settings.Current.General.Paths.PxDatabasesPath, 
+                                            new PX.Search.GetMenuDelegate(PXWeb.Management.PxContext.GetMenuAndItem),
                                             PXWeb.Settings.Current.Features.Search.CacheTime,
                                             PXWeb.Settings.Current.Features.Search.DefaultOperator);
 

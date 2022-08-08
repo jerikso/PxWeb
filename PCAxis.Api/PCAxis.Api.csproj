@@ -242,6 +242,14 @@
       <Project>{DF9DA2F6-7942-4834-8B51-8F6358DE8DB8}</Project>
       <Name>PCAxis.Chart</Name>
     </ProjectReference>
+    <ProjectReference Include="..\PX.SearchAbstractions\PX.SearchAbstractions.csproj">
+      <Project>{4f357082-67d3-405d-a3ae-88ef79ecf12c}</Project>
+      <Name>PX.SearchAbstractions</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\PX.Search\PX.Search.csproj">
+      <Project>{1250f8a8-514e-4d67-b88a-d2cdfd91a879}</Project>
+      <Name>PX.Search</Name>
+    </ProjectReference>
     <ProjectReference Include="..\PX.Web.Interfaces\PX.Web.Interfaces.csproj">
       <Project>{01468f9c-f679-49fe-9c9f-b127868d86a6}</Project>
       <Name>PX.Web.Interfaces</Name>

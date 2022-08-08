@@ -162,7 +162,7 @@ namespace PX.Search
         {
             if (!System.IO.Path.IsPathRooted(pxBaseDirectory))
             {
-                pxBaseDirectory = HttpContext.Current.Server.MapPath(pxBaseDirectory);
+                //pxBaseDirectory = HttpContext.Current.Server.MapPath(pxBaseDirectory);
             }
 
             if (System.IO.Directory.Exists(pxBaseDirectory))

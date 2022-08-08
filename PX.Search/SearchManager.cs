@@ -12,6 +12,7 @@ using System.Xml;
 using PCAxis.Paxiom.Extensions;
 using PCAxis.Web.Core.Enums;
 using PCAxis.Paxiom;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace PX.Search
 {
@@ -39,6 +40,7 @@ namespace PX.Search
         private FileSystemWatcher _dbConfigWatcher;
         private int _cacheTime;
         private DefaultOperator _defaultOperator;
+        private IMemoryCache _searcherCache;
         
         #endregion
 
@@ -96,6 +98,7 @@ namespace PX.Search
             _cacheTime = cacheTime;
             PxModelManager.Current.Initialize(databaseBaseDirectory);
             SetDefaultOperator(defaultOperator);
+            _searcherCache = new MemoryCache(new MemoryCacheOptions());
         }
 
 
@@ -409,7 +412,8 @@ namespace PX.Search
             }
             else
             {
-                dir = HttpContext.Current.Server.MapPath(_databaseBaseDirectory);
+                //dir = HttpContext.Current.Server.MapPath(_databaseBaseDirectory);
+                dir = _databaseBaseDirectory;
             }
             _dbConfigWatcher = new FileSystemWatcher(dir);
             _dbConfigWatcher.EnableRaisingEvents = true;
@@ -439,7 +443,8 @@ namespace PX.Search
                 foreach (DirectoryInfo langDir in indexDir.GetDirectories())
                 {
                     string key = CreateSearcherKey(dbDir.Name, langDir.Name);
-                    ISearcher searcher = (ISearcher)System.Web.Hosting.HostingEnvironment.Cache[key];
+                    //ISearcher searcher = (ISearcher)System.Web.Hosting.HostingEnvironment.Cache[key];
+                    ISearcher searcher = (ISearcher)_searcherCache.Get(key);
 
                     if (searcher != null)
                     {
@@ -495,18 +500,21 @@ namespace PX.Search
 
             string key = CreateSearcherKey(database, language);
 
-            if (System.Web.Hosting.HostingEnvironment.Cache[key] == null)
+            //if (System.Web.Hosting.HostingEnvironment.Cache[key] == null)
+            if (_searcherCache.Get(key) == null)
             {
                 IPxSearchProvider searchProvider = new LuceneSearchProvider(_databaseBaseDirectory,database,language);
                 // Create new Searcher and add to cache
                 ISearcher searcher = searchProvider.GetSearcher();
 
                 // Add searcher to cache for 5 minutes
-                System.Web.Hosting.HostingEnvironment.Cache.Insert(key, searcher, null, DateTime.Now.AddMinutes(_cacheTime), System.Web.Caching.Cache.NoSlidingExpiration);
+                //System.Web.Hosting.HostingEnvironment.Cache.Insert(key, searcher, null, DateTime.Now.AddMinutes(_cacheTime), System.Web.Caching.Cache.NoSlidingExpiration);
+                _searcherCache.Set(key,searcher,DateTime.Now.AddMinutes(_cacheTime));
             }
 
             // Get from cache
-            return (ISearcher)System.Web.Hosting.HostingEnvironment.Cache[key];
+            //return (ISearcher)System.Web.Hosting.HostingEnvironment.Cache[key];
+            return (ISearcher)_searcherCache.Get(key);
         }
 
         /// <summary>
@@ -518,10 +526,15 @@ namespace PX.Search
         {
             string key = CreateSearcherKey(database, language);
 
-            if (System.Web.Hosting.HostingEnvironment.Cache[key] != null)
+            /*if (System.Web.Hosting.HostingEnvironment.Cache[key] != null)
             {
                 System.Web.Hosting.HostingEnvironment.Cache.Remove(key);
+            }*/
+            if (_searcherCache.Get(key) != null)
+            {
+               _searcherCache.Remove(key);
             }
+
         }
 
         /// <summary>

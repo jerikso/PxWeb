@@ -249,7 +249,7 @@ namespace PXWeb
             }
 
             //Initialize Index search
-            PX.Search.SearchManager.Current.Initialize(PXWeb.Settings.Current.General.Paths.PxDatabasesPath, 
+            PX.Search.SearchManager.Current.Initialize(Server.MapPath(PXWeb.Settings.Current.General.Paths.PxDatabasesPath), 
                                             new PX.Search.GetMenuDelegate(PXWeb.Management.PxContext.GetMenuAndItem),
                                             PXWeb.Settings.Current.Features.Search.CacheTime,
                                             PXWeb.Settings.Current.Features.Search.DefaultOperator);

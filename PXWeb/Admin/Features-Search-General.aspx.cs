@@ -51,18 +51,18 @@ namespace PXWeb.Admin
                         switch (cboDefaultOperator.SelectedValue)
                         {
                             case "AND":
-                                search.DefaultOperator = PCAxis.Search.DefaultOperator.AND;
+                                search.DefaultOperator = PX.SearchAbstractions.DefaultOperator.AND;
                                 break;
                             case "OR":
-                                search.DefaultOperator = PCAxis.Search.DefaultOperator.OR;
+                                search.DefaultOperator = PX.SearchAbstractions.DefaultOperator.OR;
                                 break;
                             default:
-                                search.DefaultOperator = PCAxis.Search.DefaultOperator.OR;
+                                search.DefaultOperator = PX.SearchAbstractions.DefaultOperator.OR;
                                 break;
                         }
 
-                        PCAxis.Search.SearchManager.Current.CacheTime = search.CacheTime;
-                        PCAxis.Search.SearchManager.Current.SetDefaultOperator(search.DefaultOperator);
+                        PX.Search.SearchManager.Current.CacheTime = search.CacheTime;
+                        PX.Search.SearchManager.Current.SetDefaultOperator(search.DefaultOperator);
 
                         PXWeb.Settings.Save();
                     }

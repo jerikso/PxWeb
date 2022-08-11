@@ -112,7 +112,7 @@ namespace PX.Search
             //Indexer indexer = new Indexer(GetIndexDirectoryPath(database, language), _menuMethod, database, language);
             IPxSearchProvider searchProvider = new LuceneSearchProvider(_databaseBaseDirectory,database,language);
             IIndexer indexer = searchProvider.GetIndexer();
-            indexer.Create(true);
+            indexer.Create();
 
             try
             {
@@ -178,7 +178,7 @@ namespace PX.Search
         {
             IPxSearchProvider searchProvider = new LuceneSearchProvider(_databaseBaseDirectory,database,language);
             IIndexer indexer = searchProvider.GetIndexer();
-            indexer.Create(false);
+            indexer.Create();
 
             ItemSelection node = null;
             PCAxis.Menu.Item currentTable;

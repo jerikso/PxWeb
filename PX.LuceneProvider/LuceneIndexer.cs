@@ -6,17 +6,19 @@ using System.Linq;
 using System.Text;
 using Lucene.Net.Store;
 using Lucene.Net.Index;
-using Lucene.Net.Analysis.Standard;
 using PCAxis.Menu;
 using Lucene.Net.Documents;
 using PCAxis.Web.Core.Enums;
 using PCAxis.Paxiom.Extensions;
-
+using Lucene.Net.Analysis.Standard;
+using Lucene.Net.Analysis;
+using Lucene.Net.Analysis.Miscellaneous;
 
 namespace PX.LuceneProvider
 {
     public class LuceneIndexer : IIndexer
     {
+        private const int DefaultMaxFieldLength = 10000;
         private string _indexDirectory;
         private string _database;
         private IndexWriter _writer;
@@ -46,22 +48,20 @@ namespace PX.LuceneProvider
             _writer.UpdateDocument(new Term(SearchConstants.SEARCH_FIELD_DOCID, doc.Get(SearchConstants.SEARCH_FIELD_DOCID)), doc);
         }
 
-        public void Create(bool createIndex)
+        public void Create()
         {
-            _writer = CreateIndexWriter(createIndex);
+            _writer = CreateIndexWriter();
+            /*
             if (createIndex)
             {
                 _writer.SetMaxFieldLength(int.MaxValue);
-            }
+            }*/
         }
 
         public void Dispose()
         {
             if (_running) {
                 _writer.Rollback(); 
-            }
-            else {
-                _writer.Optimize();
             }
             _writer.Dispose();
         }
@@ -91,26 +91,26 @@ namespace PX.LuceneProvider
                     return doc;
                 }
 
-                doc.Add(new Field(SearchConstants.SEARCH_FIELD_DOCID, id, Field.Store.YES, Field.Index.NOT_ANALYZED)); // Used as id when updating a document - NOT searchable!!!
-                doc.Add(new Field(SearchConstants.SEARCH_FIELD_SEARCHID, id, Field.Store.NO, Field.Index.ANALYZED)); // Used for finding a document by id - will be used for generating URL from just the tableid - Searchable!!!
-                doc.Add(new Field(SearchConstants.SEARCH_FIELD_PATH, path, Field.Store.YES, Field.Index.NO));
-                doc.Add(new Field(SearchConstants.SEARCH_FIELD_TABLE, table, Field.Store.YES, Field.Index.NO));
-                doc.Add(new Field(SearchConstants.SEARCH_FIELD_DATABASE, database, Field.Store.YES, Field.Index.NOT_ANALYZED));
-                doc.Add(new Field(SearchConstants.SEARCH_FIELD_PUBLISHED, published.DateTimeToPxDateString(), Field.Store.YES, Field.Index.NOT_ANALYZED));
-                doc.Add(new Field(SearchConstants.SEARCH_FIELD_MATRIX, meta.Matrix, Field.Store.YES, Field.Index.ANALYZED));
-                doc.Add(new Field(SearchConstants.SEARCH_FIELD_TITLE, title, Field.Store.YES, Field.Index.ANALYZED));
-                doc.Add(new Field(SearchConstants.SEARCH_FIELD_VARIABLES, string.Join(" ", (from v in meta.Variables select v.Name).ToArray()), Field.Store.NO, Field.Index.ANALYZED));
-                doc.Add(new Field(SearchConstants.SEARCH_FIELD_PERIOD, meta.GetTimeValues(), Field.Store.NO, Field.Index.ANALYZED));
-                doc.Add(new Field(SearchConstants.SEARCH_FIELD_VALUES, meta.GetAllValues(), Field.Store.NO, Field.Index.ANALYZED));
-                doc.Add(new Field(SearchConstants.SEARCH_FIELD_CODES, meta.GetAllCodes(), Field.Store.NO, Field.Index.ANALYZED));
-                doc.Add(new Field(SearchConstants.SEARCH_FIELD_GROUPINGS, meta.GetAllGroupings(), Field.Store.NO, Field.Index.ANALYZED));
-                doc.Add(new Field(SearchConstants.SEARCH_FIELD_GROUPINGCODES, meta.GetAllGroupingCodes(), Field.Store.NO, Field.Index.ANALYZED));
-                doc.Add(new Field(SearchConstants.SEARCH_FIELD_VALUESETS, meta.GetAllValuesets(), Field.Store.NO, Field.Index.ANALYZED));
-                doc.Add(new Field(SearchConstants.SEARCH_FIELD_VALUESETCODES, meta.GetAllValuesetCodes(), Field.Store.NO, Field.Index.ANALYZED));
-                doc.Add(new Field(SearchConstants.SEARCH_FIELD_TABLEID, meta.TableID == null ? meta.Matrix : meta.TableID, Field.Store.YES, Field.Index.ANALYZED));
+                doc.Add(new StringField(SearchConstants.SEARCH_FIELD_DOCID, id, Field.Store.YES)); // Used as id when updating a document - NOT searchable!!!
+                doc.Add(new TextField(SearchConstants.SEARCH_FIELD_SEARCHID, id, Field.Store.NO)); // Used for finding a document by id - will be used for generating URL from just the tableid - Searchable!!!
+                doc.Add(new StoredField(SearchConstants.SEARCH_FIELD_PATH, path));
+                doc.Add(new StoredField(SearchConstants.SEARCH_FIELD_TABLE, table));
+                doc.Add(new StringField(SearchConstants.SEARCH_FIELD_DATABASE, database, Field.Store.YES));
+                doc.Add(new StringField(SearchConstants.SEARCH_FIELD_PUBLISHED, published.DateTimeToPxDateString(), Field.Store.YES));
+                doc.Add(new TextField(SearchConstants.SEARCH_FIELD_MATRIX, meta.Matrix, Field.Store.YES));
+                doc.Add(new TextField(SearchConstants.SEARCH_FIELD_TITLE, title, Field.Store.YES));
+                doc.Add(new TextField(SearchConstants.SEARCH_FIELD_VARIABLES, string.Join(" ", (from v in meta.Variables select v.Name).ToArray()), Field.Store.NO));
+                doc.Add(new TextField(SearchConstants.SEARCH_FIELD_PERIOD, meta.GetTimeValues(), Field.Store.NO));
+                doc.Add(new TextField(SearchConstants.SEARCH_FIELD_VALUES, meta.GetAllValues(), Field.Store.NO));
+                doc.Add(new TextField(SearchConstants.SEARCH_FIELD_CODES, meta.GetAllCodes(), Field.Store.NO));
+                doc.Add(new TextField(SearchConstants.SEARCH_FIELD_GROUPINGS, meta.GetAllGroupings(), Field.Store.NO));
+                doc.Add(new TextField(SearchConstants.SEARCH_FIELD_GROUPINGCODES, meta.GetAllGroupingCodes(), Field.Store.NO));
+                doc.Add(new TextField(SearchConstants.SEARCH_FIELD_VALUESETS, meta.GetAllValuesets(), Field.Store.NO));
+                doc.Add(new TextField(SearchConstants.SEARCH_FIELD_VALUESETCODES, meta.GetAllValuesetCodes(), Field.Store.NO));
+                doc.Add(new TextField(SearchConstants.SEARCH_FIELD_TABLEID, meta.TableID == null ? meta.Matrix : meta.TableID, Field.Store.YES));
                 if (!string.IsNullOrEmpty(meta.Synonyms))
                 {
-                    doc.Add(new Field(SearchConstants.SEARCH_FIELD_SYNONYMS, meta.Synonyms, Field.Store.NO, Field.Index.ANALYZED));
+                    doc.Add(new TextField(SearchConstants.SEARCH_FIELD_SYNONYMS, meta.Synonyms, Field.Store.NO));
                 }
 
             }
@@ -121,9 +121,8 @@ namespace PX.LuceneProvider
         /// <summary>
         /// Get Lucene.Net IndexWriter object 
         /// </summary>
-        /// <param name="createIndex">If index shall be created (true) or updated (false)</param>
         /// <returns>IndexWriter object. If the Index directory is locked, null is returned</returns>
-        private IndexWriter CreateIndexWriter(bool createIndex)
+        private IndexWriter CreateIndexWriter()
         {
             FSDirectory fsDir = FSDirectory.Open(_indexDirectory);
 
@@ -131,8 +130,17 @@ namespace PX.LuceneProvider
             {
                 return null;
             }
+            Lucene.Net.Util.LuceneVersion luceneVersion = Lucene.Net.Util.LuceneVersion.LUCENE_48;
 
-            IndexWriter writer = new IndexWriter(fsDir, new StandardAnalyzer(Lucene.Net.Util.Version.LUCENE_30), createIndex, IndexWriter.MaxFieldLength.LIMITED);
+            Analyzer analyzer = new StandardAnalyzer(luceneVersion);
+
+            IndexWriterConfig config = new IndexWriterConfig(luceneVersion, analyzer)
+            {
+                OpenMode = OpenMode.CREATE_OR_APPEND // Creates a new index if one does not exist, otherwise it opens the index and documents will be appended.
+            };
+            IndexWriter writer = new IndexWriter(fsDir, config);
+
+            //IndexWriter writer = new IndexWriter(fsDir, new StandardAnalyzer(Lucene.Net.Util.Version.LUCENE_30), createIndex, IndexWriter.MaxFieldLength.LIMITED);
             return writer;
         }
     }

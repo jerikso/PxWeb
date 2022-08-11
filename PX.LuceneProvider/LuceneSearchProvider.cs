@@ -35,11 +35,6 @@ namespace PX.LuceneProvider
         /// <param name="indexDirectory">Base directory for all search indexes</param>
         private DirectoryInfo GetDatabaseBaseDirectory(string databaseBaseDirectory)
         {
-            if (!System.IO.Path.IsPathRooted(databaseBaseDirectory))
-            {
-                databaseBaseDirectory = System.Web.Hosting.HostingEnvironment.MapPath(databaseBaseDirectory);
-            }
-
             if (System.IO.Directory.Exists(databaseBaseDirectory))
             {
                 return new DirectoryInfo(databaseBaseDirectory);

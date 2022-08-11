@@ -395,9 +395,13 @@
     <Content Include="UserControls\SaveQueryCreate.ascx" />
     <Content Include="UserControls\SearchControl.ascx" />
     <Content Include="UserControls\VariableOverviewControl.ascx" />
-    <Content Include="Web.config">
-      <SubType>Designer</SubType>
-    </Content>
+    <Content Include="web.config" />
+    <None Include="web.Debug.config">
+      <DependentUpon>web.config</DependentUpon>
+    </None>
+    <None Include="web.Release.config">
+      <DependentUpon>web.config</DependentUpon>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Admin\Admin.Master.cs">

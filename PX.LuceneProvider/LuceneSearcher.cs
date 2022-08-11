@@ -6,10 +6,11 @@ using System.Text;
 using System.Threading.Tasks;
 using Lucene.Net.Store;
 using Lucene.Net.Search;
-using Lucene.Net.QueryParsers;
+using Lucene.Net.QueryParsers.Classic;
 using Lucene.Net.Documents;
 using Lucene.Net.Analysis.Standard;
 using PCAxis.Paxiom.Extensions;
+using Lucene.Net.Index;
 
 namespace PX.LuceneProvider
 {
@@ -18,7 +19,7 @@ namespace PX.LuceneProvider
         private string _indexDirectory;
         private IndexSearcher _indexSearcher;
         private DateTime _creationTime;
-        private static QueryParser.Operator _defaultOperator = QueryParser.Operator.OR;
+        private static Operator _defaultOperator = Operator.OR;
 
         /// <summary>
         /// Constructor
@@ -33,7 +34,8 @@ namespace PX.LuceneProvider
 
             try
             {
-                _indexSearcher = new IndexSearcher(fsDir, true); //Read-only = true
+                IndexReader reader = DirectoryReader.Open(fsDir);
+                _indexSearcher = new IndexSearcher(reader);
             }
             catch (Exception)
             {
@@ -51,10 +53,11 @@ namespace PX.LuceneProvider
 
             List<SearchResultItem> searchResult = new List<SearchResultItem>();
             string[] fields = GetSearchFields(filter);
+            Lucene.Net.Util.LuceneVersion luceneVersion = Lucene.Net.Util.LuceneVersion.LUCENE_48;
 
-            QueryParser qp = new MultiFieldQueryParser(Lucene.Net.Util.Version.LUCENE_30,
+            QueryParser qp = new MultiFieldQueryParser(luceneVersion,
                                                        fields,
-                                                       new StandardAnalyzer(Lucene.Net.Util.Version.LUCENE_30));
+                                                       new StandardAnalyzer(luceneVersion));
 
             qp.DefaultOperator = _defaultOperator;
 
@@ -86,11 +89,11 @@ namespace PX.LuceneProvider
         {
             if (defaultOperator == DefaultOperator.OR)
             {
-                _defaultOperator = Lucene.Net.QueryParsers.QueryParser.Operator.OR;
+                _defaultOperator = Operator.OR;
             }
             else
             {
-                _defaultOperator = Lucene.Net.QueryParsers.QueryParser.Operator.AND;
+                _defaultOperator = Operator.AND;
             }
         }
 

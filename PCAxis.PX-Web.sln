@@ -45,7 +45,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PX.Search", "PX.Search\PX.S
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PX.SearchAbstractions", "PX.SearchAbstractions\PX.SearchAbstractions.csproj", "{4F357082-67D3-405D-A3AE-88EF79ECF12C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PX.LuceneProvider", "PX.LuceneProvider\PX.LuceneProvider.csproj", "{4F0494B9-F885-4841-8E9E-2D2750611919}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PX.LuceneProvider48", "PX.LuceneProvider4.8\PX.LuceneProvider48.csproj", "{4F0494B9-F885-4841-8E9E-2D2750611919}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

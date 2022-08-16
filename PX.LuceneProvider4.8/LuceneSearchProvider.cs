@@ -3,7 +3,7 @@ using System.IO;
 using System.Web;
 using System.Text;
 
-namespace PX.LuceneProvider
+namespace PX.LuceneProvider48
 {
     public class LuceneSearchProvider : IPxSearchProvider
     {

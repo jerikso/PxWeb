@@ -14,7 +14,7 @@ using Lucene.Net.Analysis.Standard;
 using Lucene.Net.Analysis;
 using Lucene.Net.Analysis.Miscellaneous;
 
-namespace PX.LuceneProvider
+namespace PX.LuceneProvider48
 {
     public class LuceneIndexer : IIndexer
     {

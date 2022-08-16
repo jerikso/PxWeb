@@ -12,7 +12,7 @@ using Lucene.Net.Analysis.Standard;
 using PCAxis.Paxiom.Extensions;
 using Lucene.Net.Index;
 
-namespace PX.LuceneProvider
+namespace PX.LuceneProvider48
 {
     public class LuceneSearcher : ISearcher
     {

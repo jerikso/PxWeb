@@ -1,6 +1,6 @@
 ﻿using System;
 using PX.SearchAbstractions;
-using PX.LuceneProvider;
+using PX.LuceneProvider48;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;

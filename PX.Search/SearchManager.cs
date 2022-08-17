@@ -1,6 +1,7 @@
 ﻿using System;
 using PX.SearchAbstractions;
 using PX.LuceneProvider48;
+using PX.LuceneProvider;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -16,7 +17,11 @@ using System.Runtime.Caching;
 
 namespace PX.Search
 {
-    
+    public enum SearchProviderVersion{
+        Legacy,
+        Version48
+    }
+
     /// <summary>
     /// Delegate function for getting the Menu
     /// </summary>
@@ -40,13 +45,13 @@ namespace PX.Search
         private FileSystemWatcher _dbConfigWatcher;
         private int _cacheTime;
         private DefaultOperator _defaultOperator;
-        //private IMemoryCache _searcherCache;
-        
+        private readonly SearchProviderVersion searchProviderVersion = SearchProviderVersion.Version48;
+
         #endregion
 
 
         #region "Public properties"
-        
+
         /// <summary>
         /// Get the (Singleton) SearchManager object
         /// </summary>
@@ -110,9 +115,8 @@ namespace PX.Search
         public bool CreateIndex(string database, string language)
         {
             //Indexer indexer = new Indexer(GetIndexDirectoryPath(database, language), _menuMethod, database, language);
-            IPxSearchProvider searchProvider = new LuceneSearchProvider(_databaseBaseDirectory,database,language);
-            IIndexer indexer = searchProvider.GetIndexer();
-            indexer.Create();
+            IIndexer indexer = GetIndexer(database, language);
+            indexer.Create(false);
 
             try
             {
@@ -176,9 +180,8 @@ namespace PX.Search
         /// <param name="language">language</param>
         public bool UpdateIndex(string database, string language, List<TableUpdate> tableList)
         {
-            IPxSearchProvider searchProvider = new LuceneSearchProvider(_databaseBaseDirectory,database,language);
-            IIndexer indexer = searchProvider.GetIndexer();
-            indexer.Create();
+            IIndexer indexer = GetIndexer(database, language);
+            indexer.Create(true);
 
             ItemSelection node = null;
             PCAxis.Menu.Item currentTable;
@@ -490,6 +493,23 @@ namespace PX.Search
             }
         }
 
+        private IIndexer GetIndexer(string database, string language)
+        {
+            return GetSearchProvider(database, language).GetIndexer();
+        }
+
+        private IPxSearchProvider GetSearchProvider(string database, string language)
+        {
+            switch (searchProviderVersion)
+            {
+                case SearchProviderVersion.Legacy:
+                    return new LuceneProvider.LuceneSearchProvider(_databaseBaseDirectory, database, language);
+                case SearchProviderVersion.Version48:
+                    return new LuceneProvider48.LuceneSearchProvider(_databaseBaseDirectory, database, language);
+            }
+            return null;
+        }
+
         /// <summary>
         /// Get Searcher from cache
         /// </summary>
@@ -504,7 +524,7 @@ namespace PX.Search
             //if (System.Web.Hosting.HostingEnvironment.Cache[key] == null)
             if (MemoryCache.Default.Get(key) == null)
             {
-                IPxSearchProvider searchProvider = new LuceneSearchProvider(_databaseBaseDirectory,database,language);
+                IPxSearchProvider searchProvider = GetSearchProvider(database, language);
                 // Create new Searcher and add to cache
                 ISearcher searcher = searchProvider.GetSearcher();
 
@@ -562,6 +582,7 @@ namespace PX.Search
 
             return key.ToString();
         }
+
 
         #endregion
     }

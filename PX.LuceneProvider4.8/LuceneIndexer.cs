@@ -48,7 +48,7 @@ namespace PX.LuceneProvider48
             _writer.UpdateDocument(new Term(SearchConstants.SEARCH_FIELD_DOCID, doc.Get(SearchConstants.SEARCH_FIELD_DOCID)), doc);
         }
 
-        public void Create()
+        public void Create(bool createIndex)
         {
             _writer = CreateIndexWriter();
             /*

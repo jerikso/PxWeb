@@ -4,7 +4,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{4F0494B9-F885-4841-8E9E-2D2750611919}</ProjectGuid>
+    <ProjectGuid>{C37B6835-7063-4B0E-BBA7-F61EA8C9F326}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>PX.LuceneProvider</RootNamespace>

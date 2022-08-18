@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+	 <TargetFrameworks>netstandard2.0;net472</TargetFrameworks>
   </PropertyGroup>
 
 
@@ -18,9 +18,14 @@
 
   <ItemGroup>
     <ProjectReference Include="..\PCAxis.Web.Core\PCAxis.Web.Core.vbproj" />
-    <ProjectReference Include="..\PX.LuceneProvider4.8\PX.LuceneProvider48.csproj" />
-    <ProjectReference Include="..\PX.LuceneProvider\PX.LuceneProvider.csproj" />
     <ProjectReference Include="..\PX.SearchAbstractions\PX.SearchAbstractions.csproj" />
   </ItemGroup>
+
+	<ItemGroup Condition="$(TargetFramework.StartsWith('net472'))" >
+		<ProjectReference Include="..\PX.LuceneProvider\PX.LuceneProvider.csproj" />
+	</ItemGroup>
+	<ItemGroup Condition="$(TargetFramework.StartsWith('netstandard'))" >
+		<ProjectReference Include="..\PX.LuceneProvider4.8\PX.LuceneProvider48.csproj" />
+	</ItemGroup>
 
 </Project>

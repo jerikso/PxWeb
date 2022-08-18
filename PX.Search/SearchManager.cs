@@ -1,7 +1,5 @@
 ﻿using System;
 using PX.SearchAbstractions;
-using PX.LuceneProvider48;
-using PX.LuceneProvider;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -116,7 +114,7 @@ namespace PX.Search
         {
             //Indexer indexer = new Indexer(GetIndexDirectoryPath(database, language), _menuMethod, database, language);
             IIndexer indexer = GetIndexer(database, language);
-            indexer.Create(false);
+            indexer.Create(true);
 
             try
             {
@@ -181,7 +179,7 @@ namespace PX.Search
         public bool UpdateIndex(string database, string language, List<TableUpdate> tableList)
         {
             IIndexer indexer = GetIndexer(database, language);
-            indexer.Create(true);
+            indexer.Create(false);
 
             ItemSelection node = null;
             PCAxis.Menu.Item currentTable;
@@ -503,9 +501,17 @@ namespace PX.Search
             switch (searchProviderVersion)
             {
                 case SearchProviderVersion.Legacy:
+#if NET472
                     return new LuceneProvider.LuceneSearchProvider(_databaseBaseDirectory, database, language);
+#else
+                    throw new NotSupportedException("Legacy lucene is only supported in .NET framework");
+#endif
                 case SearchProviderVersion.Version48:
+#if NETSTANDARD2_0
                     return new LuceneProvider48.LuceneSearchProvider(_databaseBaseDirectory, database, language);
+#else
+                    throw new NotSupportedException("Lucene 4 is only supported in .NET standard");
+#endif
             }
             return null;
         }
@@ -584,6 +590,6 @@ namespace PX.Search
         }
 
 
-        #endregion
+#endregion
     }
 }

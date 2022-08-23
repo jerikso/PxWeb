@@ -18,13 +18,14 @@
 
   <ItemGroup>
     <ProjectReference Include="..\PCAxis.Web.Core\PCAxis.Web.Core.vbproj" />
+    <ProjectReference Include="..\PX.ElasticSearchProvider\PX.ElasticProvider.csproj" />
     <ProjectReference Include="..\PX.SearchAbstractions\PX.SearchAbstractions.csproj" />
   </ItemGroup>
 
-	<ItemGroup Condition="$(TargetFramework.StartsWith('net472'))" >
+	<ItemGroup Condition="$(TargetFramework.StartsWith('net472'))">
 		<ProjectReference Include="..\PX.LuceneProvider\PX.LuceneProvider.csproj" />
 	</ItemGroup>
-	<ItemGroup Condition="$(TargetFramework.StartsWith('netstandard'))" >
+	<ItemGroup Condition="$(TargetFramework.StartsWith('netstandard'))">
 		<ProjectReference Include="..\PX.LuceneProvider4.8\PX.LuceneProvider48.csproj" />
 	</ItemGroup>
 

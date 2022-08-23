@@ -17,7 +17,8 @@ namespace PX.Search
 {
     public enum SearchProviderVersion{
         Legacy,
-        Version48
+        Version48,
+        Elastic
     }
 
     /// <summary>
@@ -43,7 +44,7 @@ namespace PX.Search
         private FileSystemWatcher _dbConfigWatcher;
         private int _cacheTime;
         private DefaultOperator _defaultOperator;
-        private readonly SearchProviderVersion searchProviderVersion = SearchProviderVersion.Version48;
+        private readonly SearchProviderVersion searchProviderVersion = SearchProviderVersion.Elastic;
 
         #endregion
 
@@ -511,7 +512,9 @@ namespace PX.Search
                     return new LuceneProvider48.LuceneSearchProvider(_databaseBaseDirectory, database, language);
 #else
                     throw new NotSupportedException("Lucene 4 is only supported in .NET standard");
-#endif
+#endif          
+                case SearchProviderVersion.Elastic:
+                    return new ElasticProvider.ElasticSearchProvider(_databaseBaseDirectory, database, language);
             }
             return null;
         }

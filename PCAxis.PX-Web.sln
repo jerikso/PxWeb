@@ -49,6 +49,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PX.LuceneProvider48", "PX.L
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PX.LuceneProvider", "PX.LuceneProvider\PX.LuceneProvider.csproj", "{C37B6835-7063-4B0E-BBA7-F61EA8C9F326}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PX.ElasticProvider", "PX.ElasticSearchProvider\PX.ElasticProvider.csproj", "{BB94394B-5AAB-4767-8C0D-F25A2A1B9899}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -131,6 +133,10 @@ Global
 		{C37B6835-7063-4B0E-BBA7-F61EA8C9F326}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C37B6835-7063-4B0E-BBA7-F61EA8C9F326}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C37B6835-7063-4B0E-BBA7-F61EA8C9F326}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BB94394B-5AAB-4767-8C0D-F25A2A1B9899}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BB94394B-5AAB-4767-8C0D-F25A2A1B9899}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BB94394B-5AAB-4767-8C0D-F25A2A1B9899}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BB94394B-5AAB-4767-8C0D-F25A2A1B9899}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
